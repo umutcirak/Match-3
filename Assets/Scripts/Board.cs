@@ -12,11 +12,14 @@ public class Board : MonoBehaviour
 
     [Header("Gem Settings")]
     [SerializeField] Gem[] gemPrefabs;
+    [SerializeField] float fallSpeed = 1f;
 
 
     [HideInInspector] public Gem[,] allGems;
-
     [HideInInspector] public MatchFinder matchFinder;
+
+    public enum BoardState {processing, notProcessing};
+    public BoardState currentState = BoardState.notProcessing;
 
 
     void Awake()
@@ -32,7 +35,7 @@ public class Board : MonoBehaviour
 
     private void Update()
     {
-        matchFinder.FindMatches();
+        //matchFinder.FindMatches();
     }
 
     private void Setup()
@@ -65,7 +68,7 @@ public class Board : MonoBehaviour
 
     void SpawnGem(Vector2Int pos, Gem gemPrefab)
     {            
-        Gem gem = Instantiate(gemPrefab, new Vector3(pos.x,pos.y,0f), Quaternion.identity);
+        Gem gem = Instantiate(gemPrefab, new Vector3(pos.x,height,0f), Quaternion.identity);
 
         gem.transform.parent = this.transform;
         gem.name = "Gem-" + pos.x + "," + pos.y;
@@ -100,31 +103,126 @@ public class Board : MonoBehaviour
         return false;
     }
 
-    void DestoyMatches()
+    public void DestoyMatches()
     {
+        
         for(int i = 0; i < matchFinder.currentMatches.Count; i++)
         {
-            Gem gemToDestroy = matchFinder.currentMatches[i];
-            Vector2Int pos = new Vector2Int(gemToDestroy.posIndex.x, gemToDestroy.posIndex.y);
-            DestroyMatchedGemAt(pos);
+            if(matchFinder.currentMatches[i] != null)
+            {
+                DestroyMatchedGemAt(matchFinder.currentMatches[i].posIndex);
+            }           
         }
 
+        StartCoroutine(FallGemsCo());       
     }
 
-
     void DestroyMatchedGemAt(Vector2Int pos)
-    {
-        Gem gemToDestroy = allGems[pos.x, pos.y];
+    {        
 
-       if(gemToDestroy != null)
+       if(allGems[pos.x,pos.y] != null)
         {
-            if (gemToDestroy.isMatched)
+            if (allGems[pos.x, pos.y].isMatched)
             {
-                Destroy(gemToDestroy);
+                allGems[pos.x, pos.y].CallDestroyEffect();
+                Destroy(allGems[pos.x, pos.y].gameObject);                
                 allGems[pos.x, pos.y] = null;
             }            
 
         }
+
+    }
+
+   
+
+    IEnumerator FallGemsCo()
+    {
+        yield return new WaitForSeconds(fallSpeed);
+
+        int nullCount = 0;
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                if(allGems[x,y] == null)
+                {
+                    nullCount++;
+                }
+                else if(nullCount > 0){
+                    allGems[x, y].posIndex.y -= nullCount;
+                    allGems[x, y - nullCount] = allGems[x, y];
+                    allGems[x, y] = null;
+                }
+
+            }
+            nullCount = 0;
+        }
+        StartCoroutine(RefillGoneGemsCo());
+    }
+
+    void RefillGoneGems()
+    {        
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                if (allGems[x, y] == null)
+                {
+                    int gemIndex = Random.Range(0, gemPrefabs.Length);
+                    SpawnGem(new Vector2Int(x, y), gemPrefabs[gemIndex]);
+                }
+
+            }
+        }
+
+        DestroyMisplacedGems();
+
+    }
+
+    IEnumerator RefillGoneGemsCo()
+    {
+        yield return new WaitForSeconds(fallSpeed + 0.5f);
+        RefillGoneGems();
+
+        yield return new WaitForSeconds(0.5f);
+
+        matchFinder.FindMatches();
+        if(matchFinder.currentMatches.Count > 0)
+        {
+            yield return new WaitForSeconds(1f);
+            DestoyMatches();
+            currentState = BoardState.processing;
+        }
+        else
+        {
+            yield return new WaitForSeconds(0.5f);
+            currentState = BoardState.notProcessing;
+        }
+
+    }
+
+    void DestroyMisplacedGems()
+    {
+        List<Gem> misplacedGems = new List<Gem>();
+        misplacedGems.AddRange(FindObjectsOfType<Gem>());
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                if (misplacedGems.Contains(allGems[x,y]))
+                {
+                    misplacedGems.Remove(allGems[x, y]);
+                }
+            }
+        }
+
+        foreach (Gem gem in misplacedGems){
+            Destroy(gem.gameObject);
+        }
+
+        
 
     }
 

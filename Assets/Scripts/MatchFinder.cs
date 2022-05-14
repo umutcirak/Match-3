@@ -13,7 +13,8 @@ public class MatchFinder : MonoBehaviour
     }
 
     public void FindMatches()
-    {        
+    {
+        currentMatches.Clear();
 
         for (int x = 0; x < board.getWidth(); x++)
         {

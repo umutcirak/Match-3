@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Gem : MonoBehaviour
 {
+    public ParticleSystem destroyEffect;
+
     public Vector2Int posIndex;
     Board board;
 
@@ -57,17 +59,23 @@ public class Gem : MonoBehaviour
     {
         if (mousePressed && Input.GetMouseButtonUp(0))
         {
-            finalTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             mousePressed = false;
-            CalculateAngel();
+            if(board.currentState == Board.BoardState.notProcessing)
+            {
+                finalTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                CalculateAngel();
+            }            
         }
     }
 
     // OnMouseDown detectes if we press on an object.
     private void OnMouseDown()
-    {               
-        firstTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mousePressed = true;
+    {    
+        if(board.currentState == Board.BoardState.notProcessing)
+        {
+            firstTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            mousePressed = true;
+        }        
     }
        
 
@@ -132,6 +140,8 @@ public class Gem : MonoBehaviour
 
     IEnumerator SwapBack()
     {
+        board.currentState = Board.BoardState.processing;
+
         yield return new WaitForSeconds(0.5f);
 
         board.matchFinder.FindMatches();
@@ -147,9 +157,21 @@ public class Gem : MonoBehaviour
                 board.allGems[otherGem.posIndex.x, otherGem.posIndex.y] = otherGem;
                 ChangeNames();
 
+                yield return new WaitForSeconds(0.5f);
+                board.currentState = Board.BoardState.notProcessing;
+
+            }
+            else
+            {
+                board.DestoyMatches();
             }
         }
 
+    }
+
+    public void CallDestroyEffect()
+    {
+        Instantiate(destroyEffect, new Vector2(posIndex.x, posIndex.y), Quaternion.identity);
     }
 
 
