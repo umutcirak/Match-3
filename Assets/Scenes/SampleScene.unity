@@ -152,6 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64d2d3b538f7fb44c8c222e1451a9d65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentMatches: []
 --- !u!4 &244345796
 Transform:
   m_ObjectHideFlags: 0
@@ -283,13 +284,16 @@ MonoBehaviour:
   width: 7
   height: 7
   bgTilePrefab: {fileID: 5220683120615272652, guid: b8c6df09f741e1a42801a50b93bb9d15, type: 3}
-  gemSpeed: 3
+  gemSpeed: 6
   gemPrefabs:
   - {fileID: 4684035510589354527, guid: e0842c54d333e384db22265a7a3bf2de, type: 3}
   - {fileID: 3754796378430681556, guid: c3563a75d7bb35f409184bebeefcb18f, type: 3}
   - {fileID: 5936415491147145538, guid: 0c6d5bf9bc1aead4c8db0b86d07b72fb, type: 3}
   - {fileID: 989304464861794194, guid: 6d0cfafc89860354bb4ae61f35dfcf08, type: 3}
   - {fileID: 4496977097806665463, guid: d7e7fcde9e750fb43ad42fcd3ef65bc7, type: 3}
+  fallSpeed: 0.5
+  matchFinder: {fileID: 0}
+  currentState: 1
 --- !u!4 &1610633579
 Transform:
   m_ObjectHideFlags: 0
