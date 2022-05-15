@@ -19,7 +19,7 @@ public class Gem : MonoBehaviour
 
     [HideInInspector] Vector2Int previousPos;
 
-    public enum GemType { blue, green, red, yellow, purple }
+    public enum GemType { blue, green, red, yellow, purple, bomb }
     public GemType type;
 
     void Awake()

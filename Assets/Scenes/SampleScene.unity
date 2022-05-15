@@ -284,7 +284,6 @@ MonoBehaviour:
   width: 7
   height: 7
   bgTilePrefab: {fileID: 5220683120615272652, guid: b8c6df09f741e1a42801a50b93bb9d15, type: 3}
-  gemSpeed: 6
   gemPrefabs:
   - {fileID: 4684035510589354527, guid: e0842c54d333e384db22265a7a3bf2de, type: 3}
   - {fileID: 3754796378430681556, guid: c3563a75d7bb35f409184bebeefcb18f, type: 3}
@@ -292,6 +291,10 @@ MonoBehaviour:
   - {fileID: 989304464861794194, guid: 6d0cfafc89860354bb4ae61f35dfcf08, type: 3}
   - {fileID: 4496977097806665463, guid: d7e7fcde9e750fb43ad42fcd3ef65bc7, type: 3}
   fallSpeed: 0.5
+  gemSpeed: 6
+  bombPrefab: {fileID: 1895261591937028127, guid: 69aaafbc31dd3654cbd274bb74851cf1, type: 3}
+  bombChance: 5
+  explosionRadius: 1
   matchFinder: {fileID: 0}
   currentState: 1
 --- !u!4 &1610633579

@@ -7,19 +7,23 @@ public class Board : MonoBehaviour
     [Header("Board Settings")]
     [SerializeField] int width;
     [SerializeField] int height;
-    [SerializeField] GameObject bgTilePrefab;
-    public float gemSpeed = 3f;
+    [SerializeField] GameObject bgTilePrefab;    
 
     [Header("Gem Settings")]
     [SerializeField] Gem[] gemPrefabs;
     [SerializeField] float fallSpeed = 1f;
+    public float gemSpeed = 3f;
 
+    [Header("Bomb Settings")]
+    [SerializeField] Gem bombPrefab;
+    [SerializeField] [Range(0f,100f)] float bombChance = 10f; // Percentage %
+    public int explosionRadius;
 
     [HideInInspector] public Gem[,] allGems;
     [HideInInspector] public MatchFinder matchFinder;
-
     public enum BoardState {processing, notProcessing};
     public BoardState currentState = BoardState.notProcessing;
+    
 
 
     void Awake()
@@ -67,8 +71,13 @@ public class Board : MonoBehaviour
     }
 
     void SpawnGem(Vector2Int pos, Gem gemPrefab)
-    {            
-        Gem gem = Instantiate(gemPrefab, new Vector3(pos.x,height,0f), Quaternion.identity);
+    {
+        if (Random.Range(0f, 100f) < bombChance)
+        {
+            gemPrefab = bombPrefab;
+        }
+
+        Gem gem = Instantiate(gemPrefab, new Vector3(pos.x,height,0f), Quaternion.identity);        
 
         gem.transform.parent = this.transform;
         gem.name = "Gem-" + pos.x + "," + pos.y;
