@@ -5,23 +5,24 @@ using UnityEngine;
 public class Gem : MonoBehaviour
 {
     public ParticleSystem destroyEffect;
-
     public Vector2Int posIndex;
-    Board board;
 
+    Gem otherGem;
     Vector2 firstTouchPosition;
     Vector2 finalTouchPosition;
     bool mousePressed;
-    float swipeAngle = 0;
-    public bool isMatched;
+    float swipeAngle = 0;   
 
-    Gem otherGem;
-
+    
     [HideInInspector] Vector2Int previousPos;
 
     public enum GemType { blue, green, red, yellow, purple, bomb }
     public GemType type;
 
+    public bool isMatched;
+    public int scoreDestroy = 10;
+
+    Board board;
     void Awake()
     {
         board = FindObjectOfType<Board>();

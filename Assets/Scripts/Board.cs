@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Board : MonoBehaviour
 {
@@ -8,6 +10,7 @@ public class Board : MonoBehaviour
     [SerializeField] int width;
     [SerializeField] int height;
     [SerializeField] GameObject bgTilePrefab;    
+    [SerializeField] TextMeshProUGUI textShuffle;
 
     [Header("Gem Settings")]
     [SerializeField] Gem[] gemPrefabs;
@@ -20,15 +23,17 @@ public class Board : MonoBehaviour
     public int explosionRadius;
 
     [HideInInspector] public Gem[,] allGems;
-    [HideInInspector] public MatchFinder matchFinder;
+    [HideInInspector] public MatchFinder matchFinder;    
+
     public enum BoardState {processing, notProcessing};
     public BoardState currentState = BoardState.notProcessing;
-    
+    RoundManager roundManager;    
 
 
     void Awake()
     {
-        matchFinder = FindObjectOfType<MatchFinder>();        
+        matchFinder = FindObjectOfType<MatchFinder>();
+        roundManager = FindObjectOfType<RoundManager>();
     }
 
     void Start()
@@ -39,11 +44,15 @@ public class Board : MonoBehaviour
 
     private void Update()
     {
-        //matchFinder.FindMatches();
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            ShuffleBoard();
+        }
     }
 
     private void Setup()
-    {
+    {        
+
         // Fill the board with bgTilePrefab
         for (int x = 0; x < width; x++)
         {
@@ -119,6 +128,7 @@ public class Board : MonoBehaviour
         {
             if(matchFinder.currentMatches[i] != null)
             {
+                IncrementScore(matchFinder.currentMatches[i]);
                 DestroyMatchedGemAt(matchFinder.currentMatches[i].posIndex);
             }           
         }
@@ -229,10 +239,57 @@ public class Board : MonoBehaviour
 
         foreach (Gem gem in misplacedGems){
             Destroy(gem.gameObject);
+        }        
+
+    }
+
+    public void ShuffleBoard()
+    {
+        if(roundManager.shuffleLeft > 0 && currentState == BoardState.notProcessing)
+        {
+            roundManager.shuffleLeft--;
+            textShuffle.text = roundManager.shuffleLeft.ToString();
+
+            List<Gem> shuffleListTemp = new List<Gem>();
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    shuffleListTemp.Add(allGems[x, y]);
+                    allGems[x, y] = null;
+                }
+            }
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    int randGemIndex = Random.Range(0, shuffleListTemp.Count);
+
+                    int iterations = 0; // Check while loop not stucked
+
+                    while(isMatches(shuffleListTemp[randGemIndex],new Vector2Int(x,y)) && iterations < 125 && shuffleListTemp.Count > 1)
+                    {
+                        iterations++;
+                        randGemIndex = Random.Range(0, shuffleListTemp.Count);
+                    }
+
+                    shuffleListTemp[randGemIndex].SetupGem(new Vector2Int(x, y));
+                    allGems[x, y] = shuffleListTemp[randGemIndex];
+                    shuffleListTemp.RemoveAt(randGemIndex);
+
+                }
+            }
+
+            StartCoroutine(RefillGoneGemsCo());
+
         }
 
-        
+    }
 
+    void IncrementScore(Gem gem)
+    {
+        roundManager.currentScore += gem.scoreDestroy;
     }
 
 
