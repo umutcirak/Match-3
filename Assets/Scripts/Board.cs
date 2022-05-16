@@ -143,6 +143,15 @@ public class Board : MonoBehaviour
         {
             if (allGems[pos.x, pos.y].isMatched)
             {
+                if(allGems[pos.x,pos.y].type == Gem.GemType.bomb)
+                {
+                    SFXManager.instance.PlayExplosion();
+                }
+                else
+                {
+                    SFXManager.instance.PlayGemBreak();
+                }
+
                 allGems[pos.x, pos.y].CallDestroyEffect();
                 Destroy(allGems[pos.x, pos.y].gameObject);                
                 allGems[pos.x, pos.y] = null;

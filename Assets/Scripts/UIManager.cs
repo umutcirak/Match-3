@@ -7,8 +7,7 @@ public class UIManager : MonoBehaviour
 {
     public TextMeshProUGUI time_value;
     public TextMeshProUGUI score_value;
-    public TextMeshProUGUI shuffle_value;
-    public GameObject roundOverScreen;
+    public TextMeshProUGUI shuffle_value;    
 
 
     Board board;
@@ -62,15 +61,16 @@ public class UIManager : MonoBehaviour
     {
         if(roundManager.roundTime == 0f && board.currentState == Board.BoardState.notProcessing)
         {
-            StartCoroutine(OpenEndPanelCo());
+            StartCoroutine(OpenEndSceneCo());
+            SFXManager.instance.PlayLevelComplete();
         }        
     }
 
-    IEnumerator OpenEndPanelCo()
+    IEnumerator OpenEndSceneCo()
     {
         yield return new WaitForSeconds(1f);
 
-        roundOverScreen.SetActive(true);
+        UnityEngine.SceneManagement.SceneManager.LoadScene(2);
     }
 
 
